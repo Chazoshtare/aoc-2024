@@ -3,6 +3,7 @@ use std::path::Path;
 
 mod day1;
 mod day2;
+mod day3;
 
 fn main() {
     let day1_input = read_input(Path::new("inputs/day1.txt"));
@@ -16,6 +17,12 @@ fn main() {
     println!("Day 2, part 1 solution: {}", solution2_1);
     let solution2_2 = day2::solve_part2(&day2_input);
     println!("Day 2, part 2 solution: {}", solution2_2);
+
+    let day3_input = read_input(Path::new("inputs/day3.txt"));
+    let solution3_1 = day3::solve_part1(&day3_input);
+    println!("Day 3, part 1 solution: {}", solution3_1);
+    let solution3_2 = day3::solve_part2(&day3_input);
+    println!("Day 3, part 2 solution: {}", solution3_2);
 }
 
 fn read_input(path: &Path) -> String {
