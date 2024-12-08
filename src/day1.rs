@@ -6,7 +6,7 @@ pub fn solve_part1(input: &str) -> u32 {
     left_list
         .iter()
         .zip(right_list.iter())
-        .map(|(a, b)| a.abs_diff(*b))
+        .map(|(&a, &b)| a.abs_diff(b))
         .sum()
 }
 
@@ -16,7 +16,7 @@ pub fn solve_part2(input: &str) -> u32 {
     left_list
         .iter()
         .map(|number| {
-            let occurrences = right_list.iter().filter(|x| *x == number).count();
+            let occurrences = right_list.iter().filter(|&x| x == number).count();
             number * occurrences as u32
         })
         .sum()
@@ -51,7 +51,7 @@ mod tests {
 3   9
 3   3";
         let solution = solve_part1(input);
-        assert_eq!(11, solution);
+        assert_eq!(solution, 11);
     }
 
     #[test]
@@ -63,6 +63,6 @@ mod tests {
 3   9
 3   3";
         let solution = solve_part2(input);
-        assert_eq!(31, solution);
+        assert_eq!(solution, 31);
     }
 }
