@@ -37,3 +37,32 @@ fn parse_input(string: &str) -> (Vec<u32>, Vec<u32>) {
 
     (left_list, right_list)
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::day1::{solve_part1, solve_part2};
+
+    #[test]
+    fn solves_part1_example() {
+        let input = "3   4
+4   3
+2   5
+1   3
+3   9
+3   3";
+        let solution = solve_part1(input);
+        assert_eq!(11, solution);
+    }
+
+    #[test]
+    fn solves_part2_example() {
+        let input = "3   4
+4   3
+2   5
+1   3
+3   9
+3   3";
+        let solution = solve_part2(input);
+        assert_eq!(31, solution);
+    }
+}
