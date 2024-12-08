@@ -28,7 +28,6 @@ fn parse_input(string: &str) -> (Vec<u32>, Vec<u32>) {
 
     string
         .lines()
-        .filter(|line| !line.is_empty())
         .for_each(|line| {
             let mut numbers = line.split_whitespace();
             left_list.push(numbers.next().unwrap().parse::<u32>().unwrap());

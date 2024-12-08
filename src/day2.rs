@@ -1,7 +1,6 @@
 pub fn solve_part1(input: &str) -> u32 {
     input
         .lines()
-        .filter(|line| !line.is_empty())
         .map(|line| parse_numbers(line))
         .map(|numbers| calculate_differences(&numbers))
         .map(|differences| {
@@ -17,7 +16,6 @@ pub fn solve_part1(input: &str) -> u32 {
 pub fn solve_part2(input: &str) -> u32 {
     input
         .lines()
-        .filter(|line| !line.is_empty())
         .map(|line| parse_numbers(line))
         .map(|numbers| calculate_differences(&numbers))
         .filter(|differences| differences.iter().filter(|&&x| x == 0).count() <= 1)
