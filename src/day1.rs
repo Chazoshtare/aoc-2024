@@ -1,8 +1,5 @@
-use std::fs;
-use std::path::Path;
-
-pub fn solve_part1(input_path: &Path) -> u32 {
-    let (mut left_list, mut right_list) = parse_input(&read_input(input_path));
+pub fn solve_part1(input: &str) -> u32 {
+    let (mut left_list, mut right_list) = parse_input(input);
     left_list.sort();
     right_list.sort();
 
@@ -13,10 +10,11 @@ pub fn solve_part1(input_path: &Path) -> u32 {
         .sum()
 }
 
-pub fn solve_part2(input_path: &Path) -> u32 {
-    let (left_list, right_list) = parse_input(&read_input(input_path));
+pub fn solve_part2(input: &str) -> u32 {
+    let (left_list, right_list) = parse_input(input);
 
-    left_list.iter()
+    left_list
+        .iter()
         .map(|number| {
             let occurrences = right_list.iter().filter(|x| *x == number).count();
             number * occurrences as u32
@@ -24,7 +22,7 @@ pub fn solve_part2(input_path: &Path) -> u32 {
         .sum()
 }
 
-fn parse_input(string: &String) -> (Vec<u32>, Vec<u32>) {
+fn parse_input(string: &str) -> (Vec<u32>, Vec<u32>) {
     let mut left_list: Vec<u32> = vec![];
     let mut right_list: Vec<u32> = vec![];
 
@@ -38,8 +36,4 @@ fn parse_input(string: &String) -> (Vec<u32>, Vec<u32>) {
         });
 
     (left_list, right_list)
-}
-
-fn read_input(path: &Path) -> String {
-    fs::read_to_string(path).expect(format!("couldn't read input file {:?}", path).as_str())
 }
