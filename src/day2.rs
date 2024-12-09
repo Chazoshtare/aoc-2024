@@ -122,7 +122,6 @@ mod tests {
 
     #[test]
     fn solves_part2_for_dampening_in_first_index() {
-        //                  3  -1 -1 -2
         let input = "13 16 15 14 12";
         let result = solve_part2(input);
         assert_eq!(result, 1);
@@ -144,12 +143,7 @@ mod tests {
 
     #[test]
     fn solves_part2_for_dampening_in_second_index_asc() {
-        //                 4  -1 3  3  2  2
         let input = "8 12 11 14 17 19 21";
-        //                 -8 11  3  3  2  2
-        "8  0  11 14 17 19 21";
-        //                 8 3  3  3  2  2
-        "0 8 11 14 17 19 21";
         let result = solve_part2(input);
         assert_eq!(result, 1);
     }

@@ -1,5 +1,3 @@
-use std::ops::Index;
-
 pub fn solve_part1(input: &str) -> usize {
     let char_matrix: Vec<Vec<char>> = input.lines().map(|l| l.chars().collect()).collect();
     let mut searchables: Vec<String> = vec![];
