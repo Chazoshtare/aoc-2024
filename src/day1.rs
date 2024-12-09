@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 pub fn solve_part1(input: &str) -> u32 {
     let (mut left_list, mut right_list) = parse_input(input);
     left_list.sort();
@@ -12,12 +14,19 @@ pub fn solve_part1(input: &str) -> u32 {
 
 pub fn solve_part2(input: &str) -> u32 {
     let (left_list, right_list) = parse_input(input);
+    let mut occurrences: HashMap<u32, u32> = HashMap::new();
+    right_list.iter()
+        .for_each(|&number| {
+            occurrences.entry(number)
+                .and_modify(|count| *count += 1)
+                .or_insert(1);
+        });
 
     left_list
         .iter()
         .map(|number| {
-            let occurrences = right_list.iter().filter(|&x| x == number).count();
-            number * occurrences as u32
+            let occurrences = occurrences.get(number).unwrap_or(&0);
+            number * occurrences
         })
         .sum()
 }
