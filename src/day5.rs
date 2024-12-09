@@ -1,25 +1,26 @@
+use std::cmp::Ordering;
 use std::collections::HashMap;
 
 pub fn solve_part1(input: &str) -> u32 {
     let rules: HashMap<u32, Vec<u32>> = parse_rules(input);
-    input
-        .lines()
-        .filter(|line| line.contains(','))
-        .map(|line| line.split(','))
-        .map(|strings| strings.map(|n| n.parse::<u32>().unwrap()))
-        .map(|numbers| {
-            numbers
-                .enumerate()
-                .map(|(index, number)| (number, index))
-                .collect::<HashMap<_, _>>()
-        })
-        .filter(|indexed| obeys_rules(indexed, &rules))
-        .map(|indexed| get_middle(&indexed))
+    parse_pages(input)
+        .iter()
+        .filter(|numbers| is_sorted_by_rules(numbers, &rules))
+        .map(|numbers| numbers[numbers.len() / 2])
         .sum()
 }
 
 pub fn solve_part2(input: &str) -> u32 {
-    0
+    let rules: HashMap<u32, Vec<u32>> = parse_rules(input);
+    parse_pages(input)
+        .iter_mut()
+        .filter(|numbers| !is_sorted_by_rules(numbers, &rules))
+        .map(|numbers| {
+            sort_by_rules(numbers, &rules);
+            numbers
+        })
+        .map(|numbers| numbers[numbers.len() / 2])
+        .sum()
 }
 
 fn parse_rules(input: &str) -> HashMap<u32, Vec<u32>> {
@@ -44,34 +45,48 @@ fn parse_rules(input: &str) -> HashMap<u32, Vec<u32>> {
     rules
 }
 
-fn obeys_rules(indexed_numbers: &HashMap<u32, usize>, rules: &HashMap<u32, Vec<u32>>) -> bool {
-    indexed_numbers.iter().all(|(number, index)| {
+fn parse_pages(input: &str) -> Vec<Vec<u32>> {
+    input
+        .lines()
+        .filter(|line| line.contains(','))
+        .map(|line| line.split(','))
+        .map(|strings| strings.map(|n| n.parse::<u32>().unwrap()).collect())
+        .collect()
+}
+
+fn is_sorted_by_rules(numbers: &Vec<u32>, rules: &HashMap<u32, Vec<u32>>) -> bool {
+    numbers.is_sorted_by(|a, b| {
         rules
-            .get(number)
+            .get(a)
             .and_then(|pages_after| {
-                let valid = pages_after.iter().all(|page_after| {
-                    let page_after_index = indexed_numbers.get(page_after).unwrap_or(&9999usize);
-                    index < page_after_index
-                });
-                Some(valid)
+                if pages_after.contains(b) {
+                    Some(true)
+                } else {
+                    Some(false)
+                }
             })
-            .unwrap_or(true)
+            .unwrap_or(false)
     })
 }
 
-fn get_middle(indexed_numbers: &HashMap<u32, usize>) -> u32 {
-    let length = indexed_numbers.len();
-    indexed_numbers
-        .iter()
-        .filter(|&(&number, &index)| index == length / 2)
-        .map(|(&number, &index)| number)
-        .next()
-        .unwrap_or(0)
+fn sort_by_rules(numbers: &mut Vec<u32>, rules: &HashMap<u32, Vec<u32>>) {
+    numbers.sort_by(|a, b| {
+        rules
+            .get(a)
+            .and_then(|pages_after| {
+                if pages_after.contains(b) {
+                    Some(Ordering::Less)
+                } else {
+                    Some(Ordering::Greater)
+                }
+            })
+            .unwrap_or(Ordering::Equal)
+    })
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::day5::solve_part1;
+    use crate::day5::{solve_part1, solve_part2};
 
     #[test]
     fn solves_part1_example() {
@@ -105,5 +120,39 @@ mod tests {
 97,13,75,29,47";
         let result = solve_part1(input);
         assert_eq!(result, 143);
+    }
+
+    #[test]
+    fn solves_part2_example() {
+        let input = "47|53
+97|13
+97|61
+97|47
+75|29
+61|13
+75|53
+29|13
+97|29
+53|29
+61|53
+97|53
+61|29
+47|13
+75|47
+97|75
+47|61
+75|61
+47|29
+75|13
+53|13
+
+75,47,61,53,29
+97,61,53,29,13
+75,29,13
+75,97,47,61,53
+61,13,29
+97,13,75,29,47";
+        let result = solve_part2(input);
+        assert_eq!(result, 123);
     }
 }
