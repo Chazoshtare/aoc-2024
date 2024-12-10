@@ -2,46 +2,39 @@ const OBSTACLE: char = '#';
 const MARKED: char = 'X';
 
 pub fn solve_part1(input: &str) -> usize {
-    let mut map = parse_to_map(input);
-    let mut location = Location::initialize(&map);
+    let mut map = Map::parse(input);
+    let mut location = map.get_start();
     let mut direction = Direction::NORTH;
 
-    let max_index = (map.len() - 1) as i32;
-    while location.is_on_map(max_index) {
+    while map.contains_location(&location) {
         if location.will_hit_obstacle(&map, &direction) {
             direction = direction.rotate()
         } else {
-            map[location.y as usize][location.x as usize] = MARKED;
+            map.mark(location.x, location.y);
             location.walk(&direction)
         }
     }
-    count_all_marked(&map)
+    map.count_all_marked()
 }
 
 pub fn solve_part2(input: &str) -> u32 {
     0
 }
 
-fn parse_to_map(input: &str) -> Vec<Vec<char>> {
-    input.lines().map(|l| l.chars().collect()).collect()
+struct Map {
+    map: Vec<Vec<char>>,
 }
 
-fn count_all_marked(map: &Vec<Vec<char>>) -> usize {
-    map.iter()
-        .flatten()
-        .filter(|&&char| char == MARKED)
-        .count()
-}
+impl Map {
+    fn parse(input: &str) -> Map {
+        Map {
+            map: input.lines().map(|l| l.chars().collect()).collect(),
+        }
+    }
 
-#[derive(Debug)]
-struct Location {
-    x: i32,
-    y: i32,
-}
-
-impl Location {
-    fn initialize(map: &Vec<Vec<char>>) -> Location {
-        map.iter()
+    fn get_start(&self) -> Location {
+        self.map
+            .iter()
             .enumerate()
             .find_map(|(row, chars)| {
                 chars.iter().enumerate().find_map(|(column, &char)| {
@@ -58,27 +51,65 @@ impl Location {
             .expect("no initial coordinates found")
     }
 
-    fn will_hit_obstacle(&self, map: &Vec<Vec<char>>, direction: &Direction) -> bool {
-        let x = self.x as usize;
-        let y = self.y as usize;
-        if self.will_leave_map(map.len() as i32 - 1, direction) {
-            false
+    fn get(&self, location: &Location) -> Option<char> {
+        if self.contains_location(location) {
+            Some(self.map[location.y as usize][location.x as usize])
         } else {
-            match direction {
-                Direction::NORTH => map[y - 1][x] == OBSTACLE,
-                Direction::SOUTH => map[y + 1][x] == OBSTACLE,
-                Direction::EAST => map[y][x + 1] == OBSTACLE,
-                Direction::WEST => map[y][x - 1] == OBSTACLE,
-            }
+            None
         }
     }
 
-    fn will_leave_map(&self, max_index: i32, direction: &Direction) -> bool {
+    fn contains_location(&self, location: &Location) -> bool {
+        let max_index = (self.map.len() - 1) as i32;
+        (location.x <= max_index && location.y <= max_index) && (location.x >= 0 && location.y >= 0)
+    }
+
+    fn mark(&mut self, x: i32, y: i32) {
+        self.map[y as usize][x as usize] = MARKED;
+    }
+
+    fn count_all_marked(&self) -> usize {
+        self.map
+            .iter()
+            .flatten()
+            .filter(|&&char| char == MARKED)
+            .count()
+    }
+
+    fn max_coord_index(&self) -> i32 {
+        (self.map.len() - 1) as i32
+    }
+}
+
+#[derive(Debug)]
+struct Location {
+    x: i32,
+    y: i32,
+}
+
+impl Location {
+    fn will_hit_obstacle(&self, map: &Map, direction: &Direction) -> bool {
+        map.get(&self.next(direction)) == Some(OBSTACLE)
+    }
+
+    fn next(&self, direction: &Direction) -> Location {
         match direction {
-            Direction::NORTH => self.y - 1 < 0,
-            Direction::SOUTH => self.y + 1 > max_index,
-            Direction::EAST => self.x + 1 > max_index,
-            Direction::WEST => self.x - 1 < 0,
+            Direction::NORTH => Location {
+                x: self.x,
+                y: self.y - 1,
+            },
+            Direction::SOUTH => Location {
+                x: self.x,
+                y: self.y + 1,
+            },
+            Direction::EAST => Location {
+                x: self.x + 1,
+                y: self.y,
+            },
+            Direction::WEST => Location {
+                x: self.x - 1,
+                y: self.y,
+            },
         }
     }
 
@@ -89,10 +120,6 @@ impl Location {
             Direction::EAST => self.x += 1,
             Direction::WEST => self.x -= 1,
         }
-    }
-
-    fn is_on_map(&self, max_index: i32) -> bool {
-        (self.x <= max_index && self.y <= max_index) && (self.x >= 0 && self.y >= 0)
     }
 }
 
@@ -147,6 +174,6 @@ mod tests {
 #.........
 ......#...";
         let result = solve_part2(input);
-        assert_eq!(result, 0);
+        assert_eq!(result, 6);
     }
 }
