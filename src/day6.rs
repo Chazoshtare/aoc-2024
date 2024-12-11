@@ -1,3 +1,6 @@
+use std::collections::HashSet;
+
+const GROUND: char = '.';
 const OBSTACLE: char = '#';
 const MARKED: char = 'X';
 
@@ -7,18 +10,53 @@ pub fn solve_part1(input: &str) -> usize {
     let mut direction = Direction::NORTH;
 
     while map.contains_location(&location) {
-        if location.will_hit_obstacle(&map, &direction) {
-            direction = direction.rotate()
-        } else {
-            map.mark(location.x, location.y);
-            location.walk(&direction)
+        while location.will_hit_obstacle(&map, &direction) {
+            direction = direction.rotate_clockwise();
         }
+        map.mark(&location);
+        location = location.next(&direction);
     }
     map.count_all_marked()
 }
 
 pub fn solve_part2(input: &str) -> u32 {
-    0
+    let mut map = Map::parse(input);
+    let mut location = map.get_start();
+    let mut direction = Direction::NORTH;
+    let mut visited_locations: HashSet<Location> = HashSet::new();
+
+    while map.contains_location(&location) {
+        visited_locations.insert(location.clone());
+        while location.will_hit_obstacle(&map, &direction) {
+            direction = direction.rotate_clockwise();
+        }
+        location = location.next(&direction);
+    }
+
+    visited_locations.remove(&map.get_start());
+    visited_locations.iter()
+        .filter(|visited| {
+            map.place_obstacle(visited);
+            let loops = loops_on_a_map(&map, map.get_start(), Direction::NORTH);
+            map.remove_obstacle(visited);
+            loops
+        }).count() as u32
+}
+
+fn loops_on_a_map(map: &Map, mut location: Location, mut direction: Direction) -> bool {
+    let mut hit_obstacles: HashSet<(Location, Direction)> = HashSet::new();
+
+    while map.contains_location(&location) {
+        while location.will_hit_obstacle(&map, &direction) {
+            if hit_obstacles.contains(&(location.next(&direction), direction.clone())) {
+                return true;
+            }
+            hit_obstacles.insert((location.next(&direction), direction.clone()));
+            direction = direction.rotate_clockwise();
+        }
+        location = location.next(&direction);
+    }
+    false
 }
 
 struct Map {
@@ -64,8 +102,16 @@ impl Map {
         (location.x <= max_index && location.y <= max_index) && (location.x >= 0 && location.y >= 0)
     }
 
-    fn mark(&mut self, x: i32, y: i32) {
-        self.map[y as usize][x as usize] = MARKED;
+    fn place_obstacle(&mut self, location: &Location) {
+        self.map[location.y as usize][location.x as usize] = OBSTACLE;
+    }
+
+    fn remove_obstacle(&mut self, location: &Location) {
+        self.map[location.y as usize][location.x as usize] = GROUND;
+    }
+
+    fn mark(&mut self, location: &Location) {
+        self.map[location.y as usize][location.x as usize] = MARKED;
     }
 
     fn count_all_marked(&self) -> usize {
@@ -75,13 +121,9 @@ impl Map {
             .filter(|&&char| char == MARKED)
             .count()
     }
-
-    fn max_coord_index(&self) -> i32 {
-        (self.map.len() - 1) as i32
-    }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Eq, PartialEq, Hash)]
 struct Location {
     x: i32,
     y: i32,
@@ -112,17 +154,9 @@ impl Location {
             },
         }
     }
-
-    fn walk(&mut self, direction: &Direction) {
-        match direction {
-            Direction::NORTH => self.y -= 1,
-            Direction::SOUTH => self.y += 1,
-            Direction::EAST => self.x += 1,
-            Direction::WEST => self.x -= 1,
-        }
-    }
 }
 
+#[derive(Clone, Eq, PartialEq, Hash)]
 enum Direction {
     NORTH,
     SOUTH,
@@ -131,7 +165,7 @@ enum Direction {
 }
 
 impl Direction {
-    fn rotate(&self) -> Direction {
+    fn rotate_clockwise(&self) -> Direction {
         match self {
             Direction::NORTH => Direction::EAST,
             Direction::SOUTH => Direction::WEST,
