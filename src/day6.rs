@@ -7,7 +7,7 @@ const MARKED: char = 'X';
 pub fn solve_part1(input: &str) -> usize {
     let mut map = Map::parse(input);
     let mut location = map.get_start();
-    let mut direction = Direction::NORTH;
+    let mut direction = Direction::North;
 
     while map.contains_location(&location) {
         while location.will_hit_obstacle(&map, &direction) {
@@ -22,7 +22,7 @@ pub fn solve_part1(input: &str) -> usize {
 pub fn solve_part2(input: &str) -> u32 {
     let mut map = Map::parse(input);
     let mut location = map.get_start();
-    let mut direction = Direction::NORTH;
+    let mut direction = Direction::North;
     let mut visited_locations: HashSet<Location> = HashSet::new();
 
     while map.contains_location(&location) {
@@ -37,7 +37,7 @@ pub fn solve_part2(input: &str) -> u32 {
     visited_locations.iter()
         .filter(|visited| {
             map.place_obstacle(visited);
-            let loops = loops_on_a_map(&map, map.get_start(), Direction::NORTH);
+            let loops = loops_on_a_map(&map, map.get_start(), Direction::North);
             map.remove_obstacle(visited);
             loops
         }).count() as u32
@@ -136,19 +136,19 @@ impl Location {
 
     fn next(&self, direction: &Direction) -> Location {
         match direction {
-            Direction::NORTH => Location {
+            Direction::North => Location {
                 x: self.x,
                 y: self.y - 1,
             },
-            Direction::SOUTH => Location {
+            Direction::South => Location {
                 x: self.x,
                 y: self.y + 1,
             },
-            Direction::EAST => Location {
+            Direction::East => Location {
                 x: self.x + 1,
                 y: self.y,
             },
-            Direction::WEST => Location {
+            Direction::West => Location {
                 x: self.x - 1,
                 y: self.y,
             },
@@ -158,19 +158,19 @@ impl Location {
 
 #[derive(Clone, Eq, PartialEq, Hash)]
 enum Direction {
-    NORTH,
-    SOUTH,
-    EAST,
-    WEST,
+    North,
+    South,
+    East,
+    West,
 }
 
 impl Direction {
     fn rotate_clockwise(&self) -> Direction {
         match self {
-            Direction::NORTH => Direction::EAST,
-            Direction::SOUTH => Direction::WEST,
-            Direction::EAST => Direction::SOUTH,
-            Direction::WEST => Direction::NORTH,
+            Direction::North => Direction::East,
+            Direction::South => Direction::West,
+            Direction::East => Direction::South,
+            Direction::West => Direction::North,
         }
     }
 }
