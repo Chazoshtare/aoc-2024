@@ -9,6 +9,7 @@ mod day5;
 mod day6;
 mod day7;
 mod day8;
+mod day9;
 
 fn main() {
     let day1_input = read_input(Path::new("inputs/day1.txt"));
@@ -58,6 +59,12 @@ fn main() {
     println!("Day 8, part 1 solution: {}", solution8_1);
     let solution8_2 = day8::solve_part2(&day8_input);
     println!("Day 8, part 2 solution: {}", solution8_2);
+
+    let day9_input = read_input(Path::new("inputs/day9.txt"));
+    let solution9_1 = day9::solve_part1(&day9_input);
+    println!("Day 9, part 1 solution: {}", solution9_1);
+    let solution9_2 = day9::solve_part2(&day9_input);
+    println!("Day 9, part 2 solution: {}", solution9_2);
 }
 
 fn read_input(path: &Path) -> String {
