@@ -1,9 +1,26 @@
 use std::iter::repeat_n;
 
 pub fn solve_part1(input: &str) -> usize {
-    let mut disk_map = parse_disk_map(input);
-    reposition_to_free_space(&mut disk_map);
-    calculate_checksum(&disk_map)
+    let disk_map = parse_disk_map(input);
+    let last_index = disk_map.len() - 1;
+    let mut back_indexer = last_index;
+    let mut checksum = 0;
+    for i in 0..last_index {
+        if i > back_indexer {
+            break;
+        }
+        match disk_map[i] {
+            Some(id) => checksum += i * id,
+            None => {
+                while disk_map[back_indexer] == None {
+                    back_indexer -= 1;
+                }
+                checksum += i * disk_map[back_indexer].unwrap();
+                back_indexer -= 1;
+            }
+        }
+    }
+    checksum
 }
 
 pub fn solve_part2(input: &str) -> u32 {
@@ -23,31 +40,6 @@ fn parse_disk_map(input: &str) -> Vec<Option<usize>> {
             }
         })
         .collect()
-}
-
-fn reposition_to_free_space(disk_map: &mut Vec<Option<usize>>) {
-    for i in 0..disk_map.len() {
-        let mut element = disk_map[i];
-        if element.is_none() {
-            disk_map[i] = get_last_present(&mut disk_map[i..])
-        }
-    }
-}
-
-fn get_last_present(disk_slice: &mut [Option<usize>]) -> Option<usize> {
-    disk_slice
-        .iter_mut()
-        .rfind(|n| n.is_some())
-        .map(|mut n| n.take())
-        .flatten()
-}
-
-fn calculate_checksum(disk_map: &[Option<usize>]) -> usize {
-    disk_map
-        .iter()
-        .filter_map(|n| *n)
-        .enumerate()
-        .fold(0, |acc, (i, n)| acc + i * n)
 }
 
 #[cfg(test)]
@@ -74,12 +66,5 @@ mod tests {
         let result = parse_disk_map(input);
         let expected = vec![Some(0), Some(0), Some(1), None, Some(2), Some(2), Some(2)];
         assert_eq!(result, expected);
-    }
-
-    #[test]
-    fn calculates_checksum() {
-        let input = vec![Some(0), Some(0), Some(1), Some(8), Some(2), Some(7)];
-        let result = calculate_checksum(&input);
-        assert_eq!(result, 2 + 24 + 8 + 35);
     }
 }
