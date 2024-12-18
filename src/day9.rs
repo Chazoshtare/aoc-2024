@@ -102,7 +102,6 @@ fn defragment(mut blocks: Vec<DiskBlock>) -> Vec<DiskBlock> {
     defragmented
 }
 
-#[derive(Debug)]
 struct DiskBlock {
     id: usize,
     occupied: bool,

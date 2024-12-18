@@ -84,21 +84,21 @@ impl Location {
         self.x >= 0 && self.x <= max_index && self.y >= 0 && self.y <= max_index
     }
 
-    fn add(&self, x: i32, y: i32) -> Location {
+    fn add(&self, x: i32, y: i32) -> Self {
         Location {
             x: self.x + x,
             y: self.y + y,
         }
     }
 
-    fn mirror(&self, center: &Location) -> Location {
+    fn mirror(&self, center: &Location) -> Self {
         Location {
             x: self.x * 2 - center.x,
             y: self.y * 2 - center.y,
         }
     }
 
-    fn all_steps(&self, other: &Location, max_index: i32) -> Vec<Location> {
+    fn all_steps(&self, other: &Self, max_index: i32) -> Vec<Self> {
         let difference_x = self.x - other.x;
         let difference_y = self.y - other.y;
         let mut locations: Vec<Location> = Vec::new();

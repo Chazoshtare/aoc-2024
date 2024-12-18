@@ -64,7 +64,7 @@ struct Map {
 }
 
 impl Map {
-    fn parse(input: &str) -> Map {
+    fn parse(input: &str) -> Self {
         Map {
             map: input.lines().map(|l| l.chars().collect()).collect(),
         }
@@ -134,7 +134,7 @@ impl Location {
         map.get(&self.next(direction)) == Some(OBSTACLE)
     }
 
-    fn next(&self, direction: &Direction) -> Location {
+    fn next(&self, direction: &Direction) -> Self {
         match direction {
             Direction::North => Location {
                 x: self.x,
@@ -165,7 +165,7 @@ enum Direction {
 }
 
 impl Direction {
-    fn rotate_clockwise(&self) -> Direction {
+    fn rotate_clockwise(&self) -> Self {
         match self {
             Direction::North => Direction::East,
             Direction::South => Direction::West,
